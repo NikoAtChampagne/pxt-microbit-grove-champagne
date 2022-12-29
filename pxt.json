@@ -4,7 +4,8 @@
     "dependencies": {
         "core": "*",
         "radio": "*",
-        "microphone": "*"
+        "microphone": "*",
+        "Grove": "github:seeed-studio/pxt-grove#v0.5.0"
     },
     "files": [
         "main.blocks",
@@ -26,5 +27,5 @@
     "supportedTargets": [
         "microbit"
     ],
-    "preferredEditor": "tsprj"
+    "preferredEditor": "pyprj"
 }

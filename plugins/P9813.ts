@@ -2,9 +2,9 @@ namespace grove {
     export namespace plugins {
         export class P9813 {
             private _NumLeds: number;
-            private _PinData: number;
-            private _PinClk: number;
-            private buf: bytearray;
+            private _PinData: DigitalPin;
+            private _PinClk: DigitalPin;
+            private buf: Buffer;
 
 
             public constructor(pinClk: number, pinData: number, numLeds: number)
@@ -12,7 +12,7 @@ namespace grove {
                 this._NumLeds = numLeds;
                 this._PinData = pinData;
                 this._PinClk = pinClk;
-                this.Reset;
+                this.Reset();
             }
 
             /* Set color to a chainable RGB LED-P9813(SKU#104020048)
@@ -53,8 +53,9 @@ namespace grove {
                 return crc8;
             }
 
-            private static Reset(){
-                this.buf = bytearray(this.num_leds * 3);
+            public Reset(){
+                this.buf = pins.createBuffer(this._NumLeds * 3);
+                //this.buf = 
                 //Begin data frame 4 bytes
                 this.Frame();
                 //4 bytes for each led (checksum, blue, green, red)
@@ -68,7 +69,7 @@ namespace grove {
                 this.Frame();
             }
 
-            private static Frame(){
+            public Frame(){
                 // Send 32x zeros
                 this.WriteBit(0)
                 for (let i=0; i<32; i++) {
@@ -76,7 +77,7 @@ namespace grove {
                 }                
             }
 
-            private static WriteByte(byte: bytearray){
+            public WriteByte(byte: number){
                 if (byte == 0) {
                     //Fast send 8x zeros
                     this.WriteBit(0);
@@ -86,9 +87,9 @@ namespace grove {
                 }
                 else{
                     //Send each bit, MSB first
-                    for (let j=0; i<8; i++) {
+                    for (let j=0; j<8; j++) {
                         if ((byte & 0x80) != 0) {
-                            self.WriteBit(1)
+                            this.WriteBit(1)
                         }
                         else {
                             this.WriteBit(0)
@@ -102,17 +103,17 @@ namespace grove {
             }
 
 
-            private static WriteBit(bit:bit){
-                this._PinData.write_digital(bit);
+            public WriteBit(bit:number){
+                this._PinData;
             }
 
 
-            private static Clk(){
-                self.pin_clk.write_digital(0)
-                self.pin_clk.write_digital(1)
+            public Clk(){
+                pins.digitalWritePin(this._PinClk,0);
+                pins.digitalWritePin(this._PinClk,1);
             }
 
-            private static SetItem(index:number, val:bytearray) {
+            public SetItem(index:number, val:any) {
                 let offset = index * 3
             
                 for (let i=0; i<3; i++){
@@ -120,7 +121,7 @@ namespace grove {
                 }
             }
 
-            private static WriteColor(r: number, g:number, b:number){
+            public WriteColor(r: number, g:number, b:number){
                 //Send a checksum byte with the format "1 1 ~B7 ~B6 ~G7 ~G6 ~R7 ~R6"
                 //The checksum colour bits should bitwise NOT the data colour bits
                 let checksum = 0xC0;  // 0b11000000
