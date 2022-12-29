@@ -10,7 +10,11 @@
         "main.blocks",
         "main.ts",
         "README.md",
-        "main.py"
+        "main.py",
+        "blocks/GroveSGP30.ts",
+        "blocks/GroveP9813.ts",
+        "plugins/P9813.ts",
+        "plugins/SGP30.ts"
     ],
     "testFiles": [
         "test.ts"
@@ -22,5 +26,5 @@
     "supportedTargets": [
         "microbit"
     ],
-    "preferredEditor": "pyprj"
+    "preferredEditor": "tsprj"
 }
