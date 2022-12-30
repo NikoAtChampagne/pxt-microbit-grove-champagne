@@ -15,24 +15,6 @@ namespace grove {
                 this.Reset();
             }
 
-            /* Set color to a chainable RGB LED-P9813(SKU#104020048)
-             * @param r value of number
-             * @param g value of number
-             * @param b value of number 
-             * @param n value of number
-             */
-            //% group="P9813"
-            //% blockId=grove_p9813_set_color block="Set Color at %ledChain r %r g %g b %b on LED %num"
-            //% r.min = 0 r.max = 0 r.defl = 0
-            //% g.min = 0 g.max = 0 g.defl = 0
-            //% b.min = 0 b.max = 0 b.defl = 0
-            //% n.min = 1 n.defl = 1
-            //% weight=3
-            public setColor(r: number, g: number, b: number, num:number) {
-                //return this;
-                //return true;
-            }
-
             private static CalcCRC8(data: any[]): number {
                 let crc8 = 0xFF;
 
@@ -104,7 +86,7 @@ namespace grove {
 
 
             public WriteBit(bit:number){
-                this._PinData;
+                pins.digitalWritePin(this._PinData, bit);
             }
 
 
@@ -121,6 +103,19 @@ namespace grove {
                 }
             }
 
+            public Write(){
+                //Begin data frame 4 bytes
+                this.Frame();
+                //4 bytes for each led(checksum, blue, green, red)
+                for (let i = 0; i< this._NumLeds; i++){
+                    this.WriteColor(
+                        this.buf[i * 3], this.buf[i * 3 + 1], this.buf[i * 3 + 2])
+                }                        
+
+                //End data frame 4 bytes
+                this.Frame();
+            }
+
             public WriteColor(r: number, g:number, b:number){
                 //Send a checksum byte with the format "1 1 ~B7 ~B6 ~G7 ~G6 ~R7 ~R6"
                 //The checksum colour bits should bitwise NOT the data colour bits
@@ -135,6 +130,25 @@ namespace grove {
                 this.WriteByte(r);
                 this.WriteByte(g);
                 this.WriteByte(b);
+            }
+
+            /* Set color to a chainable RGB LED-P9813(SKU#104020048)
+            * @param r value of number
+            * @param g value of number
+            * @param b value of number 
+            * @param n value of number
+            */
+            //% group="P9813"
+            //% blockId=grove_p9813_set_color block="Set Color at %ledChain r %r g %g b %b on LED %num"
+            //% r.min = 0 r.max = 0 r.defl = 0
+            //% g.min = 0 g.max = 0 g.defl = 0
+            //% b.min = 0 b.max = 0 b.defl = 0
+            //% n.min = 1 n.defl = 1
+            //% weight=3
+            public setColor(r: number, g: number, b: number, num: number) {
+                //serial.writeNumbers([r,g,b,num]);
+                serial.writeValue('g',g);
+                this.WriteColor(r, g, b);
             }
         }
     }
