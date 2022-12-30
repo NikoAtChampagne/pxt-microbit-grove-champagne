@@ -7,7 +7,7 @@ namespace grove {
             private buf: Buffer;
 
 
-            public constructor(pinClk: number, pinData: number, numLeds: number)
+            public constructor(pinClk: DigitalPin, pinData: DigitalPin, numLeds: number)
             {
                 this._NumLeds = numLeds;
                 this._PinData = pinData;
@@ -15,35 +15,14 @@ namespace grove {
                 this.Reset();
             }
 
-            private static CalcCRC8(data: any[]): number {
-                let crc8 = 0xFF;
-
-                for (let i = 0; i < data.length; i++) {
-                    crc8 ^= data[i];
-                    for (let j = 0; j < 8; ++j) {
-                        if (crc8 & 0x80) {
-                            crc8 <<= 1;
-                            crc8 ^= 0x31;
-                        }
-                        else {
-                            crc8 <<= 1;
-                        }
-                        crc8 &= 0xff;
-                    }
-                }
-
-                return crc8;
-            }
-
             public Reset(){
                 this.buf = pins.createBuffer(this._NumLeds * 3);
-                //this.buf = 
                 //Begin data frame 4 bytes
                 this.Frame();
                 //4 bytes for each led (checksum, blue, green, red)
-                for (let i=0; i<this._NumLeds; i++){
+                for (let i = 0; i < this._NumLeds; i++) {
                     this.WriteByte(0xC0);
-                    for (let j=0; j<3; i++){
+                    for (let j = 0; j < 3; j++) {
                         this.WriteByte(0);
                     }
                 }
@@ -59,7 +38,7 @@ namespace grove {
                 }                
             }
 
-            public WriteByte(byte: number){
+            public WriteByte(byte: any){
                 if (byte == 0) {
                     //Fast send 8x zeros
                     this.WriteBit(0);
@@ -108,8 +87,7 @@ namespace grove {
                 this.Frame();
                 //4 bytes for each led(checksum, blue, green, red)
                 for (let i = 0; i< this._NumLeds; i++){
-                    this.WriteColor(
-                        this.buf[i * 3], this.buf[i * 3 + 1], this.buf[i * 3 + 2])
+                    this.WriteColor(this.buf[i * 3], this.buf[i * 3 + 1], this.buf[i * 3 + 2]);
                 }                        
 
                 //End data frame 4 bytes
@@ -125,7 +103,7 @@ namespace grove {
                 checksum |= (r >> 6 & 3);
 
                 this.WriteByte(checksum);
-        
+                serial.writeNumbers([r, g, b]);
                 //Send the 3 colours
                 this.WriteByte(r);
                 this.WriteByte(g);
@@ -146,9 +124,27 @@ namespace grove {
             //% n.min = 1 n.defl = 1
             //% weight=3
             public setColor(r: number, g: number, b: number, num: number) {
-                //serial.writeNumbers([r,g,b,num]);
-                serial.writeValue('g',g);
                 this.WriteColor(r, g, b);
+            }
+
+            private static CalcCRC8(data: any[]): number {
+                let crc8 = 0xFF;
+
+                for (let i = 0; i < data.length; i++) {
+                    crc8 ^= data[i];
+                    for (let j = 0; j < 8; ++j) {
+                        if (crc8 & 0x80) {
+                            crc8 <<= 1;
+                            crc8 ^= 0x31;
+                        }
+                        else {
+                            crc8 <<= 1;
+                        }
+                        crc8 &= 0xff;
+                    }
+                }
+
+                return crc8;
             }
         }
     }
