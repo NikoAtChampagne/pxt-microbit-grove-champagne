@@ -30,6 +30,14 @@ namespace grove {
                 this.Frame();
             }
 
+            public Fill(r:number,g:number,b:number){
+                for (let i = 0; i < this._NumLeds; i++) {
+                    this.buf[i * 3] = r;
+                    this.buf[i * 3 + 1] = g;
+                    this.buf[i * 3 + 2] = b;
+                }
+            }
+
             public Frame(){
                 // Send 32x zeros
                 this.WriteBit(0)
@@ -74,27 +82,30 @@ namespace grove {
                 pins.digitalWritePin(this._PinClk,1);
             }
 
-            public SetItem(index:number, val:any) {
-                let offset = index * 3
-            
-                for (let i=0; i<3; i++){
-                    this.buf[offset + i] = val[i]
-                }
+            public SetItem(index:number,r:number,g:number,b:number) {
+                let offset = (index-1) * 3
+                this.buf[offset] = r;
+                this.buf[offset+1] = g;
+                this.buf[offset+2] = b;
             }
 
-            public Write(){
+            public WriteColor(){
                 //Begin data frame 4 bytes
                 this.Frame();
                 //4 bytes for each led(checksum, blue, green, red)
                 for (let i = 0; i< this._NumLeds; i++){
-                    this.WriteColor(this.buf[i * 3], this.buf[i * 3 + 1], this.buf[i * 3 + 2]);
+                    this.Write(this.buf[i * 3], this.buf[i * 3 + 1], this.buf[i * 3 + 2]);
                 }                        
-
                 //End data frame 4 bytes
                 this.Frame();
             }
 
-            public WriteColor(r: number, g:number, b:number){
+            public WriteColorAt(r:number,g:number,b:number,index:number) {
+                this.SetItem(index,r,g,b);
+                this.WriteColor();
+            }
+
+            public Write(r: number, g:number, b:number){
                 //Send a checksum byte with the format "1 1 ~B7 ~B6 ~G7 ~G6 ~R7 ~R6"
                 //The checksum colour bits should bitwise NOT the data colour bits
                 let checksum = 0xC0;  // 0b11000000
@@ -103,11 +114,11 @@ namespace grove {
                 checksum |= (r >> 6 & 3);
 
                 this.WriteByte(checksum);
-                serial.writeNumbers([r, g, b]);
+                //serial.writeNumbers([r, g, b]);
                 //Send the 3 colours
-                this.WriteByte(r);
-                this.WriteByte(g);
                 this.WriteByte(b);
+                this.WriteByte(g);
+                this.WriteByte(r);
             }
 
             /* Set color to a chainable RGB LED-P9813(SKU#104020048)
@@ -123,29 +134,15 @@ namespace grove {
             //% b.min = 0 b.max = 0 b.defl = 0
             //% n.min = 1 n.defl = 1
             //% weight=3
-            public setColor(r: number, g: number, b: number, num: number) {
-                this.WriteColor(r, g, b);
+            public SetColorAt(r: number, g: number, b: number, num: number) {
+                this.WriteColorAt(r, g, b, num);
             }
 
-            private static CalcCRC8(data: any[]): number {
-                let crc8 = 0xFF;
-
-                for (let i = 0; i < data.length; i++) {
-                    crc8 ^= data[i];
-                    for (let j = 0; j < 8; ++j) {
-                        if (crc8 & 0x80) {
-                            crc8 <<= 1;
-                            crc8 ^= 0x31;
-                        }
-                        else {
-                            crc8 <<= 1;
-                        }
-                        crc8 &= 0xff;
-                    }
-                }
-
-                return crc8;
+            public SetColor(r: number, g: number, b: number) {
+                this.Fill(r,g,b);
+                this.WriteColor();
             }
+
         }
     }
 }

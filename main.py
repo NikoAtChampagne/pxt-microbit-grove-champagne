@@ -1,13 +1,20 @@
-def on_button_pressed_a():
-    for index in range(256):
-        ledChain.set_color(index, 0, 255 - index, 1)
-        basic.pause(100)
-
-def on_button_pressed_b():
-    ledChain.reset()
-
-input.on_button_pressed(Button.A, on_button_pressed_a)
-input.on_button_pressed(Button.B, on_button_pressed_b)
-
-ledChain: grove.plugins.P9813 = None
+CO2 = grove.sgp30_read_eco2()
 ledChain = grove.create_chain(DigitalPin.P0, DigitalPin.P14, 1)
+
+def on_forever():
+    serial.write_value("CO2", CO2)
+    if CO2 >= 1500:
+        basic.show_icon(IconNames.NO)
+        ledChain.set_color_at(16, 0, 0, 1)
+        basic.pause(1000)
+    elif CO2 >= 800:
+        basic.show_icon(IconNames.ASLEEP)
+        ledChain.set_color_at(16, 16, 0, 1)
+        basic.pause(1000)
+    else:
+        basic.show_icon(IconNames.YES)
+        ledChain.set_color_at(0, 16, 0, 1)
+        basic.pause(1000)
+    ledChain.set_color_at(0, 0, 0, 1)
+    basic.pause(2000)
+basic.forever(on_forever)

@@ -8,7 +8,7 @@ namespace grove {
      * @param pinClk value of pin number
      * @param pinData value of pin number
      */
-    //% blockId=grove_p9813_create block="Chainable RGB LED at %pinClk and %pinData whith %numLeds LEDs"
+    //% blockId=grove_p9813_create block="Chainable RGB LED at %pinClk and %pinData with %numLeds LEDs"
     //% pin.fieldEditor="gridpicker" pin.fieldOptions.columns=4
     //% numLeds.min = 1 numLeds.defl = 1
     //% blockSetVariable=ledChain

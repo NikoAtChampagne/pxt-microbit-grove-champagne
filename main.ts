@@ -1,11 +1,41 @@
-input.onButtonPressed(Button.A, function on_button_pressed_a() {
-    for (let index = 0; index < 256; index++) {
-        ledChain.setColor(index, 0, 255 - index, 1)
-        basic.pause(100)
+let CO2 = 0
+let ledChain = grove.createChain(DigitalPin.P0, DigitalPin.P14, 1)
+basic.forever(function () {
+    CO2 = grove.sgp30ReadECO2()
+    serial.writeValue("CO2", CO2)
+    if (CO2 >= 1500) {
+        basic.showIcon(IconNames.No)
+        ledChain.SetColorAt(
+        16,
+        0,
+        0,
+        1
+        )
+        basic.pause(1000)
+    } else if (CO2 >= 800) {
+        basic.showIcon(IconNames.Asleep)
+        ledChain.SetColorAt(
+        16,
+        16,
+        0,
+        1
+        )
+        basic.pause(1000)
+    } else {
+        basic.showIcon(IconNames.Yes)
+        ledChain.SetColorAt(
+        0,
+        16,
+        0,
+        1
+        )
+        basic.pause(1000)
     }
+    ledChain.SetColorAt(
+    0,
+    0,
+    0,
+    1
+    )
+    basic.pause(2000)
 })
-input.onButtonPressed(Button.B, function on_button_pressed_b() {
-    ledChain.Reset()
-})
-let ledChain : grove.plugins.P9813 = null
-ledChain = grove.createChain(DigitalPin.P0, DigitalPin.P14, 1)
