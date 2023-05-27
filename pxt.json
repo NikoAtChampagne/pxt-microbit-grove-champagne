@@ -15,8 +15,10 @@
         "main.py",
         "blocks/GroveSGP30.ts",
         "blocks/GroveP9813.ts",
+        "blocks/GroveSCD30.ts",
         "plugins/P9813.ts",
-        "plugins/SGP30.ts"
+        "plugins/SGP30.ts",
+        "plugins/SCD30.ts"
     ],
     "testFiles": [
         "test.ts"
