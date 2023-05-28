@@ -16,9 +16,11 @@
         "blocks/GroveSGP30.ts",
         "blocks/GroveP9813.ts",
         "blocks/GroveSCD30.ts",
+        "blocks/GroveTB6612FNG.ts",
         "plugins/P9813.ts",
         "plugins/SGP30.ts",
-        "plugins/SCD30.ts"
+        "plugins/SCD30.ts",
+        "plugins/TB6612FNG.ts"
     ],
     "testFiles": [
         "test.ts"
